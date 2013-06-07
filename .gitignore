@@ -1,0 +1,3 @@
+#pomijamy pliki powstale w wyniku kompilacji
+Server/bin/
+Server/obj/
