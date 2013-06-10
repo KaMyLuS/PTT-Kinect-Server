@@ -1,3 +1,5 @@
 #pomijamy pliki powstale w wyniku kompilacji
 Server/bin/
 Server/obj/
+Server/Dependencies/Microsoft.Kinect.Toolkit/obj/
+Server/Dependencies/Microsoft.Kinect.Toolkit/bin/
