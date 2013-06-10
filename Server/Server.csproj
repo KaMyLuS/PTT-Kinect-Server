@@ -68,8 +68,10 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Calibrator.cs" />
+    <Compile Include="MainEngine.cs" />
     <Compile Include="ObjectManager.cs" />
     <Compile Include="SingleObject.cs" />
+    <Compile Include="SkeletonController.cs" />
     <Compile Include="SpeechRecognizer.cs" />
     <Compile Include="WebSocketServer.cs" />
     <Page Include="MainWindow.xaml">

@@ -13,19 +13,23 @@ namespace Server
         // obiekty faktycznie istniejace na planszy
         Dictionary<string, SingleObject> usedObjects = new Dictionary<string,SingleObject>();
 
-        // m.in. do przeliczania wspolrzednych Kinect<->ekran
-        Calibrator calibrator;
-
         // margines pomiedzy obiektami (wg wsp. ekranowych), potrzebny przy relatywnym pozycjonowaniu
         double screenGutter;
 
         // margines wg odleglosci Kinecta
         double kinectGutter;
 
-        public ObjectManager(Calibrator calib, double gutter)
+        MainEngine mainEngine;
+
+        public ObjectManager(MainEngine engine, double gutter)
         {
-            this.calibrator = calib;
+            this.mainEngine = engine;
             this.screenGutter = gutter;
+        }
+
+        public void SetScreenGutter(double g)
+        {
+            this.screenGutter = g;
         }
 
         public void CreateNewPossibleObject(string type, string name, int width, int height)
@@ -64,7 +68,7 @@ namespace Server
             if (obj != null)
             {
                 obj.KinectMoveTo(x, y, z);
-                obj.SetScreenPosition(calibrator.ScaleKinectPositionToScreen(x, y, z));
+                obj.SetScreenPosition(mainEngine.GetCalibrator().ScaleKinectPositionToScreen(x, y, z));
                 // tu wypada wyslac komunikat do klienta o zmianie polozenia
             }
         }

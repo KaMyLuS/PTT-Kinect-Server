@@ -79,6 +79,17 @@ namespace Server
                 PixelFormats.Bgr32, null);
             ImKinectVideo.Source = this.colorCameraBitmap;
             sensor.ColorFrameReady += new EventHandler<ColorImageFrameReadyEventArgs>(sensor_ColorFrameReady);
+
+            // przygotowanie streamingu danych o szkielecie
+            sensor.SkeletonStream.Enable();
+            sensor.SkeletonFrameReady += new EventHandler<SkeletonFrameReadyEventArgs>(sensor_SkeletonFrameReady);
+
+            sensor.Start();
+        }
+
+        void sensor_SkeletonFrameReady(object sender, SkeletonFrameReadyEventArgs e)
+        {
+            throw new NotImplementedException();
         }
 
         // wywolywane, gdy odebrano klatke z kamery
