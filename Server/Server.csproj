@@ -44,6 +44,9 @@
       <HintPath>..\..\..\..\Program Files\Microsoft SDKs\Kinect\v1.7\Assemblies\Microsoft.Kinect.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Speech, Version=11.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35" />
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>Dependencies\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
@@ -55,6 +58,9 @@
     <Reference Include="System.Xaml">
       <RequiredTargetFramework>4.0</RequiredTargetFramework>
     </Reference>
+    <Reference Include="websocket-sharp">
+      <HintPath>Dependencies\websocket-sharp.dll</HintPath>
+    </Reference>
     <Reference Include="WindowsBase" />
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
@@ -65,6 +71,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Calibrator.cs" />
+    <Compile Include="Chat.cs" />
     <Compile Include="MainEngine.cs" />
     <Compile Include="ObjectManager.cs" />
     <Compile Include="SingleObject.cs" />
