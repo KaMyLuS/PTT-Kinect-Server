@@ -13,7 +13,6 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 
 using Microsoft.Kinect;
-using Microsoft.Samples.Kinect.WpfViewers;
 using Microsoft.Kinect.Toolkit;
 
 namespace Server
