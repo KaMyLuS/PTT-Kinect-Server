@@ -1,7 +1,7 @@
 ﻿<Window x:Class="Server.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="'Put that there' Kinect Server" Height="439" Width="867" Loaded="Window_Loaded" ResizeMode="NoResize" xmlns:k="http://schemas.microsoft.com/kinect/2013">
+        Title="'Put that there' Kinect Server" Height="439" Width="867" Loaded="Window_Loaded" ResizeMode="NoResize" xmlns:k="clr-namespace:Microsoft.Kinect.Toolkit;assembly=Microsoft.Kinect.Toolkit">
     <Grid>
         <Image Height="240" HorizontalAlignment="Left" Name="ImKinectVideo" Stretch="Fill" VerticalAlignment="Top" Width="320" ImageFailed="ImKinectVideo_ImageFailed" Margin="33,83,0,0" Source="/Server;component/Images/kinect4windows.jpg" />
         <Label Content="Obraz z kamery Kinect'a:" Height="30" HorizontalAlignment="Left" Margin="33,47,0,0" Name="label1" VerticalAlignment="Top" Width="162" />
