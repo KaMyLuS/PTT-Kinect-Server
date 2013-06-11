@@ -13,7 +13,7 @@ namespace Server
     {
         private static HttpServer _httpsv;
 
-        public static void Main(string[] args)
+        public static void Init()
         {
             _httpsv = new HttpServer(4649);
             //_httpsv.Sweeped = false;
