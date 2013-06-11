@@ -5,7 +5,7 @@ using WebSocketSharp.Server;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace Example3 {
+namespace Server {
 
   public class Chat : WebSocketService
   {
