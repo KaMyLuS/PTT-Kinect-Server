@@ -68,10 +68,29 @@ namespace Server
                 {
                     case  "CALIB_CALIBRATE":
                         mainEngine.AddTextToLog("SpeechRec: " + semValue);
+
+                        if (mainEngine.GetAppState() == ApplicationState.Ready)
+                        {
+                            mainEngine.SetAppState(ApplicationState.Calibration);
+                        }
+                        else
+                        {
+                            // jakies inne przypadki? np. ponowna kalibracja czy cos...
+                        }
                         break;
 
                     case "CALIB_MARK":
                         mainEngine.AddTextToLog("SpeechRec: " + semValue);
+
+                        if (mainEngine.GetAppState() == ApplicationState.Calibration)
+                        {
+                            mainEngine.GetCalibrator().SetNextCalibrationPoint(
+                                mainEngine.GetSkeletonController().GetRightHandCoord());
+                        }
+                        else
+                        {
+                            // albo juz po kalibracji albo cos poszlo zle...
+                        }
                         break;
 
                     case "ONN_MOVE":
@@ -80,10 +99,28 @@ namespace Server
 
                     case "ONN_THERE":
                         mainEngine.AddTextToLog("SpeechRec: " + semValue);
+
+                        if (mainEngine.GetAppState() == ApplicationState.Working)
+                        {
+                            mainEngine.GetObjectManager().SelectedMoveTo(mainEngine.GetSkeletonController().GetRightHandCoord());
+                        }
+                        else
+                        {
+                            // ...
+                        }
                         break;
 
                     case "ONN_REMOVE":
                         mainEngine.AddTextToLog("SpeechRec: " + semValue);
+
+                        if (mainEngine.GetAppState() == ApplicationState.Working)
+                        {
+                            mainEngine.GetObjectManager().RemoveSelectedObject();
+                        }
+                        else
+                        {
+                            // ...
+                        }
                         break;
 
                     default:
@@ -92,14 +129,36 @@ namespace Server
                         if (semVal["OWN_MOVE_NAME"] != null)
                         {
                             mainEngine.AddTextToLog("SpeechRec: " + semVal["OWN_MOVE_NAME"]);
+
+                            if (mainEngine.GetAppState() == ApplicationState.Working)
+                            {
+                                mainEngine.GetObjectManager().MoveTo(semVal["OWN_MOVE_NAME"].ToString(),
+                                    mainEngine.GetSkeletonController().GetRightHandCoord());
+                            }
+                            else
+                            {
+                                // ...
+                            }
                         }
                         else if (semVal["OWN_NEW_NAME"] != null)
                         {
                             mainEngine.AddTextToLog("SpeechRec: " + semVal["OWN_NEW_NAME"]);
+
+                            if (mainEngine.GetAppState() == ApplicationState.Working)
+                            {
+                                mainEngine.GetObjectManager().AddUsedObject(semVal["OWN_NEW_NAME"].ToString(),
+                                    mainEngine.GetSkeletonController().GetRightHandCoord());
+                            }
+                            else
+                            {
+                                // ...
+                            }
                         }
                         else if (semVal["OWN_REMOVE_NAME"] != null)
                         {
                             mainEngine.AddTextToLog("SpeechRec: " + semVal["OWN_NEW_NAME"]);
+
+                            mainEngine.GetObjectManager().RemoveUsedObject(semVal["OWN_NEW_NAME"].ToString());
                         }
                         break;
                 }

@@ -45,6 +45,11 @@ namespace Server
             this.centroidPosition.Z = z;
         }
 
+        public void KinectMoveTo(Point3D point)
+        {
+            KinectMoveTo(point.X, point.Y, point.Z);
+        }
+
         public void SetScreenPosition(int x, int y)
         {
             screenCentroidPosition.X = x;

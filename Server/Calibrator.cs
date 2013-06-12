@@ -37,13 +37,29 @@ namespace Server
             if (nextPointIndex == 6) // tu jeszcze inne pierdoly trzeba sprawdzic (np. sensownosc punktow)
             {
                 calibrated = true;
+
+                if (mainEngine.GetAppState() == ApplicationState.Calibration)
+                    mainEngine.SetAppState(ApplicationState.Calibrated);
+                else
+                {
+                    // cos poszlo zle, skoro apka nie byla w stanie kalibracji a kalibracja sie odbywala...
+                }
             }
+        }
+
+        public void SetNextCalibrationPoint(Point3D point)
+        {
+            SetNextCalibrationPoint(point.X, point.Y, point.Z);
         }
 
         public void Reset()
         {
             calibrated = false;
             nextPointIndex = 0;
+
+            if (mainEngine.IsClientConnected && mainEngine.IsKinectConnected)
+                mainEngine.SetAppState(ApplicationState.Ready);
+            else mainEngine.SetAppState(ApplicationState.NotReady);
         }
 
         public bool IsCalibrated()

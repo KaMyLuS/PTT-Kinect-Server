@@ -15,6 +15,7 @@ namespace Server
         NotReady,
         Ready,
         Calibration,
+        Calibrated,
         Working
     }
 
@@ -162,6 +163,11 @@ namespace Server
         public static void MoveCursorTo(Point p)
         {
             System.Windows.Forms.Cursor.Position = p;
+        }
+
+        public void SetAppState(ApplicationState appS)
+        {
+            this.appState = appS;
         }
     }
 }

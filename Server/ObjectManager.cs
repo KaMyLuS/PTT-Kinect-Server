@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using System.Windows.Media.Media3D;
 
 namespace Server
 {
@@ -19,6 +20,9 @@ namespace Server
 
         // margines wg odleglosci Kinecta
         double kinectGutter;
+
+        // aktualnie zaznaczony obiekt
+        SingleObject selectedObject;
 
         MainEngine mainEngine;
 
@@ -54,11 +58,30 @@ namespace Server
             }
         }
 
+        public void AddUsedObject(string name, Point3D point)
+        {
+            AddUsedObject(name, point.X, point.Y, point.Z);
+        }
+
         // usuwanie obiektu z planszy
-        public void DeleteUsedObject(string name)
+        public void RemoveUsedObject(string name)
         {
             SingleObject obj = usedObjects[name];
-            if (obj != null) usedObjects.Remove(name);
+            if (obj != null)
+            {
+                usedObjects.Remove(name);
+                if (selectedObject == obj) selectedObject = null;
+            }
+            else
+            {
+                // ...
+            }
+        }
+
+        public void RemoveSelectedObject()
+        {
+            if (selectedObject != null)
+                usedObjects.Remove(selectedObject.GetObjectName());
         }
 
         // przesuwanie danego obiektu wg wspolrzednych Kinecta
@@ -71,6 +94,29 @@ namespace Server
                 obj.SetScreenPosition(mainEngine.GetCalibrator().ScaleKinectPositionToScreen(x, y, z));
                 // tu wypada wyslac komunikat do klienta o zmianie polozenia
             }
+            else
+            {
+                // ....
+            }
+        }
+
+        public void MoveTo(string name, Point3D point)
+        {
+            MoveTo(name, point.X, point.Y, point.Z);
+        }
+
+        // przesuwanie aktualnie zaznaczonego obiektu
+        public void SelectedMoveTo(Point3D point)
+        {
+            if (selectedObject != null)
+            {
+                selectedObject.KinectMoveTo(point);
+                selectedObject.SetScreenPosition(mainEngine.GetCalibrator().ScaleKinectPositionToScreen(point));
+            }
+            else
+            {
+                // ...
+            }
         }
 
         public SingleObject GetUsedObjectByName(string name)
@@ -81,6 +127,21 @@ namespace Server
         public string[] GetPossibleObjectsNames()
         {
             return possibleObjects.Keys.ToArray<string>();
+        }
+
+        public void SelectObject(string name)
+        {
+            selectedObject = usedObjects[name];
+        }
+
+        public void DeselectObject()
+        {
+            selectedObject = null;
+        }
+
+        public SingleObject GetSelectedObject()
+        {
+            return selectedObject;
         }
     }
 }

@@ -12,6 +12,7 @@ namespace Server
         private Skeleton[] skeletons;
 
         private Joint rightHand;
+        private Point3D rightHandCoord;
 
         private readonly MainEngine mainEngine;
 
@@ -42,6 +43,7 @@ namespace Server
                             if (firstTrackedSkeleton.Joints[JointType.HandRight].TrackingState == JointTrackingState.Tracked)
                             {
                                 rightHand = firstTrackedSkeleton.Joints[JointType.HandRight];
+                                rightHandCoord = new Point3D(rightHand.Position.X, rightHand.Position.Y, rightHand.Position.Z);
 
                                 if (mainEngine.GetAppState() == ApplicationState.Working)
                                     MainEngine.MoveCursorTo(mainEngine.GetCalibrator().ScaleKinectPositionToScreen(
@@ -56,6 +58,11 @@ namespace Server
         public Joint GetRightHand()
         {
             return rightHand;
+        }
+
+        public Point3D GetRightHandCoord()
+        {
+            return rightHandCoord;
         }
     }
 }
