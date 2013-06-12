@@ -77,5 +77,10 @@ namespace Server
         {
             return usedObjects[name];
         }
+
+        public string[] GetPossibleObjectsNames()
+        {
+            return possibleObjects.Keys.ToArray<string>();
+        }
     }
 }

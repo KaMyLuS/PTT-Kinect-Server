@@ -14,6 +14,8 @@ namespace Server
     {
         private SpeechRecognitionEngine speechEngine;
 
+        private RecognizerInfo recognizerInfo;
+
         private readonly MainEngine mainEngine;
 
         public SpeechRecognizer(MainEngine me)
@@ -23,11 +25,11 @@ namespace Server
 
         public void Start(Grammar g = null)
         {
-            RecognizerInfo ri = GetKinectRecognizer();
+            recognizerInfo = GetKinectRecognizer();
 
-            if (ri != null)
+            if (recognizerInfo != null)
             {
-                this.speechEngine = new SpeechRecognitionEngine(ri.Id);
+                this.speechEngine = new SpeechRecognitionEngine(recognizerInfo.Id);
 
                 if (g != null) speechEngine.LoadGrammar(g);
 
@@ -56,7 +58,52 @@ namespace Server
 
         void speechEngine_SpeechRecognized(object sender, SpeechRecognizedEventArgs e)
         {
-            // to do
+            const double ConfidenceThreshold = 0.3;
+
+            if (e.Result.Confidence >= ConfidenceThreshold && e.Result.Semantics.Value != null)
+            {
+                string semValue = e.Result.Semantics.Value.ToString();
+
+                switch (semValue)
+                {
+                    case  "CALIB_CALIBRATE":
+                        mainEngine.AddTextToLog("SpeechRec: " + semValue);
+                        break;
+
+                    case "CALIB_MARK":
+                        mainEngine.AddTextToLog("SpeechRec: " + semValue);
+                        break;
+
+                    case "ONN_MOVE":
+                        mainEngine.AddTextToLog("SpeechRec: " + semValue);
+                        break;
+
+                    case "ONN_THERE":
+                        mainEngine.AddTextToLog("SpeechRec: " + semValue);
+                        break;
+
+                    case "ONN_REMOVE":
+                        mainEngine.AddTextToLog("SpeechRec: " + semValue);
+                        break;
+
+                    default:
+                        var semVal = e.Result.Semantics;
+
+                        if (semVal["OWN_MOVE_NAME"] != null)
+                        {
+                            mainEngine.AddTextToLog("SpeechRec: " + semVal["OWN_MOVE_NAME"]);
+                        }
+                        else if (semVal["OWN_NEW_NAME"] != null)
+                        {
+                            mainEngine.AddTextToLog("SpeechRec: " + semVal["OWN_NEW_NAME"]);
+                        }
+                        else if (semVal["OWN_REMOVE_NAME"] != null)
+                        {
+                            mainEngine.AddTextToLog("SpeechRec: " + semVal["OWN_NEW_NAME"]);
+                        }
+                        break;
+                }
+            }
         }
 
         private static RecognizerInfo GetKinectRecognizer()
@@ -86,6 +133,54 @@ namespace Server
             }
 
             return grammar;
+        }
+
+        public void CreateAndLoadGrammarWithObjectsNames(string[] objNames)
+        {
+            // komendy do kalibracji
+            Choices calibration = new Choices();
+            calibration.Add(new SemanticResultValue("calibrate", "CALIB_CALIBRATE"));
+            calibration.Add(new SemanticResultValue("mark", "CALIB_MARK"));
+              
+            GrammarBuilder gbCalibration = new GrammarBuilder { Culture = recognizerInfo.Culture };
+            gbCalibration.Append(calibration); 
+            Grammar gCalibration = new Grammar(gbCalibration);
+
+            // do obslugi bez wykorzystywania nazw obiektow
+            Choices objNoNames = new Choices();
+            objNoNames.Add(new SemanticResultValue("move", "ONN_MOVE"));
+            objNoNames.Add(new SemanticResultValue("there", "ONN_THERE"));
+            objNoNames.Add(new SemanticResultValue("remove", "ONN_REMOVE"));
+
+            GrammarBuilder gbONN = new GrammarBuilder { Culture = recognizerInfo.Culture };
+            gbONN.Append(objNoNames);
+            Grammar gONN = new Grammar(gbONN);
+
+            // przesuwanie obiektow z wykorzystaniem nazw
+            Choices objWithNames = new Choices(objNames);
+            GrammarBuilder gbMOWN = new GrammarBuilder { Culture = recognizerInfo.Culture };
+            gbMOWN.Append("move");
+            gbMOWN.Append(new SemanticResultKey("OWN_MOVE_NAME", objWithNames));
+            Grammar gMOWN = new Grammar(gbMOWN);
+
+            // tworzenie obiektow z wykorzystaniem nazw, bez podawania kierunku
+            GrammarBuilder gbCOWN = new GrammarBuilder { Culture = recognizerInfo.Culture };
+            gbCOWN.Append("new");
+            gbCOWN.Append(new SemanticResultKey("OWN_NEW_NAME", objWithNames));
+            Grammar gCOWN = new Grammar(gbCOWN);
+
+            // usuwanie obiektow z wykorzystaniem nazw
+            GrammarBuilder gbROWN = new GrammarBuilder { Culture = recognizerInfo.Culture };
+            gbROWN.Append("new");
+            gbROWN.Append(new SemanticResultKey("OWN_REMOVE_NAME", objWithNames));
+            Grammar gROWN = new Grammar(gbROWN);
+
+            // ladujemy wszystkie gramatyki
+            speechEngine.LoadGrammar(gCalibration);
+            speechEngine.LoadGrammar(gONN);
+            speechEngine.LoadGrammar(gMOWN);
+            speechEngine.LoadGrammar(gCOWN);
+            speechEngine.LoadGrammar(gROWN);
         }
     }
 }
