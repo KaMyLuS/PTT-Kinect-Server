@@ -34,6 +34,9 @@ namespace Server
         // klatka w postaci pobranej z kamery
         private byte[] colorCameraPixels;
 
+        // glowny silnik 
+        private MainEngine mainEngine;
+
         public MainWindow()
         {
             InitializeComponent();
@@ -44,6 +47,7 @@ namespace Server
             SensorChooserUI.KinectSensorChooser = this.sensorChooser;
             this.sensorChooser.KinectChanged += new EventHandler<KinectChangedEventArgs>(sensorChooser_KinectChanged);
             this.sensorChooser.Start();
+            mainEngine = new MainEngine(null, TBLog);
         }
 
         void sensorChooser_KinectChanged(object sender, KinectChangedEventArgs e)
@@ -79,11 +83,8 @@ namespace Server
             ImKinectVideo.Source = this.colorCameraBitmap;
             sensor.ColorFrameReady += new EventHandler<ColorImageFrameReadyEventArgs>(sensor_ColorFrameReady);
 
-            // przygotowanie streamingu danych o szkielecie
-            sensor.SkeletonStream.Enable();
-            sensor.SkeletonFrameReady += new EventHandler<SkeletonFrameReadyEventArgs>(sensor_SkeletonFrameReady);
-
-            sensor.Start();
+            mainEngine = new MainEngine(sensor, TBLog);
+            mainEngine.Start();
         }
 
         void sensor_SkeletonFrameReady(object sender, SkeletonFrameReadyEventArgs e)

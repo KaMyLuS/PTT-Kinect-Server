@@ -2,10 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 
 namespace Server
 {
-    class ObjectManager
+    public class ObjectManager
     {
         // zbior wszystkich obiektow, ktorych mozna uzyc w programie
         Dictionary<string, SingleObject> possibleObjects = new Dictionary<string,SingleObject>();
@@ -21,10 +22,9 @@ namespace Server
 
         MainEngine mainEngine;
 
-        public ObjectManager(MainEngine engine, double gutter)
+        public ObjectManager(MainEngine engine)
         {
             this.mainEngine = engine;
-            this.screenGutter = gutter;
         }
 
         public void SetScreenGutter(double g)

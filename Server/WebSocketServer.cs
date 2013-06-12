@@ -8,9 +8,16 @@ using WebSocketSharp.Server;
 
 namespace Server
 {
-    class WebSocketServer
+    public class WebSocketServer
     {
         private static HttpServer _httpsv;
+
+        private readonly MainEngine mainEngine;
+
+        public WebSocketServer(MainEngine me)
+        {
+            mainEngine = me;
+        }
 
         public static void Init()
         {

@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Windows;
 using System.Windows.Media.Media3D;
+using System.Drawing;
 
 namespace Server
 {
-    class SingleObject
+    public class SingleObject
     {
         // pozycja srodka obiektu wg wspolrzednych Kinecta
         private Point3D centroidPosition;
@@ -45,7 +45,7 @@ namespace Server
             this.centroidPosition.Z = z;
         }
 
-        public void SetScreenPosition(double x, double y)
+        public void SetScreenPosition(int x, int y)
         {
             screenCentroidPosition.X = x;
             screenCentroidPosition.Y = y;

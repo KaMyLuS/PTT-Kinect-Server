@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Windows;
+using System.Drawing;
 using System.Windows.Media.Media3D;
 
 namespace Server
 {
-    class Calibrator
+    public class Calibrator
     {
         // punkty kalibracji, zaczynajac od lewego gornego rogu idac zgodnie z ruchem wskazowek zegara
         private Point3D[] calibrationPoints = new Point3D[6];
@@ -17,6 +17,13 @@ namespace Server
 
         // czy proces kalibracji sie zakonczyl
         private bool calibrated = false;
+
+        private readonly MainEngine mainEngine;
+
+        public Calibrator(MainEngine me)
+        {
+            mainEngine = me;
+        }
 
         // ustawianie nastepnego punktu kalibracji
         public void SetNextCalibrationPoint(double x, double y, double z = 0)
@@ -63,7 +70,7 @@ namespace Server
             return res;
         }
 
-        public Point3D ScaleScreenPositionToKinect(double x, double y)
+        public Point3D ScaleScreenPositionToKinect(int x, int y)
         {
             return ScaleScreenPositionToKinect(new Point(x, y));
         }

@@ -14,7 +14,14 @@ namespace Server
     {
         private SpeechRecognitionEngine speechEngine;
 
-        public SpeechRecognizer(KinectSensor sensor, Grammar g = null)
+        private readonly MainEngine mainEngine;
+
+        public SpeechRecognizer(MainEngine me)
+        {
+            mainEngine = me;
+        }
+
+        public void Start(Grammar g = null)
         {
             RecognizerInfo ri = GetKinectRecognizer();
 
@@ -28,7 +35,7 @@ namespace Server
                 speechEngine.SpeechRecognitionRejected += speechEngine_SpeechRecognitionRejected;
 
                 speechEngine.SetInputToAudioStream(
-                    sensor.AudioSource.Start(), new SpeechAudioFormatInfo(EncodingFormat.Pcm, 16000, 16, 1, 32000, 2, null));
+                    mainEngine.GetKinectSensor().AudioSource.Start(), new SpeechAudioFormatInfo(EncodingFormat.Pcm, 16000, 16, 1, 32000, 2, null));
                 speechEngine.RecognizeAsync(RecognizeMode.Multiple);
             }
             else
@@ -44,7 +51,7 @@ namespace Server
 
         void speechEngine_SpeechRecognitionRejected(object sender, SpeechRecognitionRejectedEventArgs e)
         {
-            throw new NotImplementedException();
+            // to do
         }
 
         void speechEngine_SpeechRecognized(object sender, SpeechRecognizedEventArgs e)
@@ -68,13 +75,14 @@ namespace Server
         }
 
         // tworzy gramatyke na podstawie zadanej reguly z pliku xml
-        public static Grammar CreateGrammar(string ruleName)
+        public static Grammar CreateGrammarFromXML(string ruleName = null)
         {
             Grammar grammar;
 
             using (var memoryStream = new MemoryStream(Encoding.ASCII.GetBytes(Properties.Resources.SpeechGrammar)))
             {
-                grammar = new Grammar(memoryStream, ruleName);
+                if (ruleName != null) grammar = new Grammar(memoryStream, ruleName);
+                else grammar = new Grammar(memoryStream);
             }
 
             return grammar;
