@@ -169,5 +169,45 @@ namespace Server
         {
             this.appState = appS;
         }
+
+        public void SetAppStateToWorking()
+        {
+            if (this.appState == ApplicationState.Calibrated)
+                this.appState = ApplicationState.Working;
+            else
+            {
+                // ...
+            }
+        }
+
+        public void SetAppStateToCalibrated()
+        {
+            if (this.appState == ApplicationState.Calibration)
+                this.appState = ApplicationState.Calibrated;
+            else
+            {
+                // ...
+            }
+        }
+
+        public void SetAppStateToCalibration()
+        {
+            if (this.appState == ApplicationState.Ready)
+                this.appState = ApplicationState.Calibration;
+            else
+            {
+                // ...
+            }
+        }
+
+        public void SetAppStateToReady()
+        {
+            if (this.IsClientConnected && this.IsKinectConnected)
+                this.appState = ApplicationState.Ready;
+            else
+            {
+                // ...
+            }
+        }
     }
 }
