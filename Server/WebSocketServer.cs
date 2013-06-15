@@ -12,14 +12,14 @@ namespace Server
     {
         private static HttpServer _httpsv;
 
-        private readonly MainEngine mainEngine;
+        protected readonly MainEngine mainEngine;
 
         public WebSocketServer(MainEngine me)
         {
             mainEngine = me;
         }
 
-        public static void Init()
+        public void Init()
         {
             _httpsv = new HttpServer(4649);
             //_httpsv.Sweeped = false;
@@ -33,19 +33,19 @@ namespace Server
 
             _httpsv.OnError += (sender, e) =>
             {
-                Console.WriteLine(e.Message);
+               mainEngine.AddTextToLog(e.Message);
             };
 
             _httpsv.Start();
-            Console.WriteLine("HTTP Server listening on port: {0} service path:", _httpsv.Port);
+            mainEngine.AddTextToLog("HTTP Server listening on port: {0} service path:", _httpsv.Port);
             foreach (var path in _httpsv.ServicePaths)
-                Console.WriteLine("  {0}", path);
-            Console.WriteLine();
+                mainEngine.AddTextToLog(String.Format("  {0}", path));
+            mainEngine.AddTextToLog("");
 
-            Console.WriteLine("Press any key to stop server...");
-            Console.ReadLine();
+            mainEngine.AddTextToLog("Press any key to stop server...");
+            //Console.ReadLine();
 
-            _httpsv.Stop();
+            //_httpsv.Stop();
         }
 
         private static byte[] getContent(string path)
@@ -56,8 +56,10 @@ namespace Server
             return _httpsv.GetFile(path);
         }
 
-        private static void onGet(HttpRequestEventArgs eventArgs)
+        private void onGet(HttpRequestEventArgs eventArgs)
         {
+            mainEngine.AddTextToLog("adsad");
+
             var request = eventArgs.Request;
             var response = eventArgs.Response;
             var content = getContent(request.RawUrl);

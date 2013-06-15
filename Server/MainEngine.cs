@@ -75,6 +75,7 @@ namespace Server
             skeletonController = new SkeletonController(this);
             speechRecognizer = new SpeechRecognizer(this);
             webSocketServer = new WebSocketServer(this);
+            webSocketServer.Init();
         }
 
         /* dopisuje text do logu, dodajac znak nowej linii na koncu
