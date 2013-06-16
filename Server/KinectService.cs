@@ -7,17 +7,20 @@ using Newtonsoft.Json.Linq;
 
 namespace Server {
 
-  public class Chat : WebSocketService
+  public class KinectService : WebSocketService
   {
     private static int _num = 0;
     private static int ile = 0;
 
     private string _name;
-    public MainEngine main;//{get; set;}
+    public MainEngine engine;//{get; set;}
 
-    public Chat()
+    public KinectService()
     {
-        //main = new MainEngine(
+        MainWindow window = MainWindow.instance;
+        engine = new MainEngine(null, window.TBLog);
+        window.mainEngine = engine;
+        engine.service = this;
     }
 
     private string getName()
@@ -70,10 +73,10 @@ namespace Server {
             msg = String.Format("{0}: {1}", _name, myJson.ToString());
         }
 
-       // if (main != null)
-        //{
-            //main.AddTextToLog(msg);
-        //}
+        if (engine != null)
+        {
+            engine.AddTextToLog(msg);
+        }
 
         Broadcast(msg);
         System.Diagnostics.Debug.WriteLine("aaa");

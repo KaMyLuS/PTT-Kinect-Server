@@ -35,11 +35,13 @@ namespace Server
         private byte[] colorCameraPixels;
 
         // glowny silnik 
-        private MainEngine mainEngine;
+        public MainEngine mainEngine {get; set;}
+        public static MainWindow instance;
 
         public MainWindow()
         {
             InitializeComponent();
+            instance = this;
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
@@ -47,7 +49,8 @@ namespace Server
             SensorChooserUI.KinectSensorChooser = this.sensorChooser;
             this.sensorChooser.KinectChanged += new EventHandler<KinectChangedEventArgs>(sensorChooser_KinectChanged);
             this.sensorChooser.Start();
-            mainEngine = new MainEngine(null, TBLog);
+            WebSocketServer webSocketServer = new WebSocketServer();
+            webSocketServer.Init();
         }
 
         void sensorChooser_KinectChanged(object sender, KinectChangedEventArgs e)

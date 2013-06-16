@@ -75,7 +75,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Calibrator.cs" />
-    <Compile Include="Chat.cs" />
+    <Compile Include="KinectService.cs" />
     <Compile Include="MainEngine.cs" />
     <Compile Include="ObjectManager.cs" />
     <Compile Include="SingleObject.cs" />

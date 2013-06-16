@@ -27,7 +27,7 @@ namespace Server
         private readonly ObjectManager objectManager;
         private readonly SkeletonController skeletonController;
         private readonly SpeechRecognizer speechRecognizer;
-        private readonly WebSocketServer webSocketServer;
+        public KinectService service { get;  set; } 
 
         private readonly KinectSensor kinectSensor;
 
@@ -74,8 +74,6 @@ namespace Server
             objectManager = new ObjectManager(this);
             skeletonController = new SkeletonController(this);
             speechRecognizer = new SpeechRecognizer(this);
-            webSocketServer = new WebSocketServer(this);
-            webSocketServer.Init();
         }
 
         /* dopisuje text do logu, dodajac znak nowej linii na koncu
@@ -105,11 +103,6 @@ namespace Server
         public SpeechRecognizer GetSpeechRecognizer()
         {
             return speechRecognizer;
-        }
-
-        public WebSocketServer GetWebSocketServer()
-        {
-            return webSocketServer;
         }
 
         public KinectSensor GetKinectSensor()

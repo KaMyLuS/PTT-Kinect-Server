@@ -12,19 +12,12 @@ namespace Server
     {
         private static HttpServer _httpsv;
 
-        protected readonly MainEngine mainEngine;
-
-        public WebSocketServer(MainEngine me)
-        {
-            mainEngine = me;
-        }
-
         public void Init()
         {
             _httpsv = new HttpServer(4649);
             //_httpsv.Sweeped = false;
             //_httpsv.AddWebSocketService<Echo>("/Echo");
-            _httpsv.AddWebSocketService<Chat>("/Chat");
+            _httpsv.AddWebSocketService<KinectService>("/");
 
             _httpsv.OnGet += (sender, e) =>
             {
@@ -33,19 +26,24 @@ namespace Server
 
             _httpsv.OnError += (sender, e) =>
             {
-               mainEngine.AddTextToLog(e.Message);
+               write(e.Message);
             };
 
             _httpsv.Start();
-            mainEngine.AddTextToLog("HTTP Server listening on port: {0} service path:", _httpsv.Port);
+            write(String.Format("HTTP Server listening on port: {0} service path:", _httpsv.Port));
             foreach (var path in _httpsv.ServicePaths)
-                mainEngine.AddTextToLog(String.Format("  {0}", path));
-            mainEngine.AddTextToLog("");
+                write(String.Format("  {0}", path));
+            write("");
 
-            mainEngine.AddTextToLog("Press any key to stop server...");
+            write("Press any key to stop server...");
             //Console.ReadLine();
 
             //_httpsv.Stop();
+        }
+
+        private void write(string text)
+        {
+            System.Diagnostics.Debug.WriteLine(text);
         }
 
         private static byte[] getContent(string path)
@@ -58,7 +56,7 @@ namespace Server
 
         private void onGet(HttpRequestEventArgs eventArgs)
         {
-            mainEngine.AddTextToLog("adsad");
+            write("adsad");
 
             var request = eventArgs.Request;
             var response = eventArgs.Response;
