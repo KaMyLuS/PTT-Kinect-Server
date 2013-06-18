@@ -35,7 +35,7 @@ namespace Server
         private byte[] colorCameraPixels;
 
         // glowny silnik 
-        public MainEngine mainEngine {get; set;}
+        public MainEngine mainEngine;
         public static MainWindow instance;
 
         public MainWindow()
