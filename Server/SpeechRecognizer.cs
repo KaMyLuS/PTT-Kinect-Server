@@ -66,13 +66,9 @@ namespace Server
                 speechEngine.SpeechRecognized += speechEngine_SpeechRecognized;
                 speechEngine.SpeechRecognitionRejected += speechEngine_SpeechRecognitionRejected;
 
-                mainEngine.AddTextToLog("SpeechRec: " + "2");
-
                 speechEngine.SetInputToAudioStream(
                     mainEngine.GetKinectSensor().AudioSource.Start(), new SpeechAudioFormatInfo(EncodingFormat.Pcm, 16000, 16, 1, 32000, 2, null));
                 speechEngine.RecognizeAsync(RecognizeMode.Multiple);
-
-                mainEngine.AddTextToLog("SpeechRec: " + "3");
             }
             else
             {
@@ -125,11 +121,19 @@ namespace Server
                             {
                                 mainEngine.GetCalibrator().SetNextCalibrationPoint(
                                     mainEngine.GetSkeletonController().GetRightHandCoord());
-                                mainEngine.service.send(Orders.MARK);
+                                if (mainEngine.GetAppState() == ApplicationState.Calibrated)
+                                {
+                                    mainEngine.AddTextToLog("skalibrowane");
+                                    mainEngine.service.send(Orders.DONE);      
+                                }
+                                else if (mainEngine.GetAppState() == ApplicationState.Calibration)
+                                {
+                                    mainEngine.service.send(Orders.MARK);
+                                }
                             }
                             else
                             {
-                                // albo juz po kalibracji albo cos poszlo zle...
+                                // cos poszlo zle...
                             }
                             break;
 

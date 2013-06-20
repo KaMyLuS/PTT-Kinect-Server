@@ -10,7 +10,7 @@ namespace Server {
   public class KinectService : WebSocketService
   {
     private static int _num = 0;
-    private static int count = -1;
+    private static int count = 0;
 
     private string _name;
     public MainEngine engine;
@@ -23,6 +23,8 @@ namespace Server {
         MainWindow window = MainWindow.instance;
         engine = window.mainEngine;
         engine.service = this;
+        engine.clientConnected = true;
+        engine.SetAppStateToReady();
     }
 
     private string getName()
@@ -71,7 +73,7 @@ namespace Server {
 
         if (myJson != null)
         {
-            System.Threading.Thread.Sleep(5000);
+            //System.Threading.Thread.Sleep(5000);
             count++;
             System.Diagnostics.Debug.WriteLine(myJson.ToString());
             Broadcast(myJson.ToString());
@@ -91,14 +93,14 @@ namespace Server {
         }
         else if (myJson["type"].ToString().Equals("calibration:listen_to_start"))
         {
-            send(SpeechRecognizer.Orders.CALIBRATE); //tylko dla mockowania, do usuniecia jak bedzie kinect, on wysle sygnal po rozpoznaniu slowa
+            /*send(SpeechRecognizer.Orders.CALIBRATE); //tylko dla mockowania, do usuniecia jak bedzie kinect, on wysle sygnal po rozpoznaniu slowa
             while (count < markers.Length)
             {
                 send(SpeechRecognizer.Orders.MARK);  //tylko dla mockowania, do usuniecia jak bedzie kinect, on wysle sygnal po rozpoznaniu slowa
             }
 
             send(SpeechRecognizer.Orders.DONE);
-            return;
+            return;*/
         }
 
         if (_name.IsEmpty())
@@ -121,8 +123,9 @@ namespace Server {
 
     protected override void OnClose(CloseEventArgs e)
     {
-      var msg = String.Format("{0} got logged off...", _name);
-      Broadcast(msg);
+        var msg = String.Format("{0} got logged off...", _name);
+        Broadcast(msg);
+        engine.clientConnected = false;
     }
   }
 }

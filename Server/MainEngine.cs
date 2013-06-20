@@ -37,7 +37,7 @@ namespace Server
         {
             get
             {
-                AddTextToLog("MainEngine: " + this.kinectSensor.Status.ToString());
+                //AddTextToLog("MainEngine: " + this.kinectSensor.Status.ToString());
                 if (this.kinectSensor != null && this.kinectSensor.Status == KinectStatus.Connected)
                     return true;
                 return false;
@@ -140,8 +140,6 @@ namespace Server
                 objectManager.CreateNewPossibleObject("ab", "cat", 10, 10);
                 objectManager.CreateNewPossibleObject("ab", "dog", 10, 10);
                 speechRecognizer.CreateAndLoadGrammarWithObjectsNames(objectManager.GetPossibleObjectsNames());
-
-                appState = ApplicationState.Working;
 
                 AddTextToLog("MainEngine: started"); 
 
