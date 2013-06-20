@@ -78,6 +78,7 @@
     <Compile Include="KinectService.cs" />
     <Compile Include="MainEngine.cs" />
     <Compile Include="ObjectManager.cs" />
+    <Compile Include="ObjectType.cs" />
     <Compile Include="SingleObject.cs" />
     <Compile Include="SkeletonController.cs" />
     <Compile Include="SpeechRecognizer.cs" />

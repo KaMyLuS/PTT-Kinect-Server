@@ -68,6 +68,9 @@ namespace Server {
             case SpeechRecognizer.Orders.DONE:
                 myJson = JObject.Parse("{ \"type\": \"calibration:done\", \"message\": {} }");
                 break;
+            case SpeechRecognizer.Orders.WORK:
+                myJson = JObject.Parse("{ \"type\": \"work:start\", \"message\": {} }");
+                break;
             default: break;
         }
 
@@ -89,6 +92,32 @@ namespace Server {
 
         if (myJson["type"].ToString().Contains("configure:"))
         {
+            if (myJson["type"].ToString().Equals("configure:object_types"))
+            {
+                foreach(JObject obj in myJson["message"])
+                {
+                    //engine.AddTextToLog(obj["name"] + " " + obj["width"] + " " + obj["height"]);  
+                    engine.GetObjectManager().AddObjectType(obj["name"].ToString(), int.Parse(obj["width"].ToString()), int.Parse(obj["height"].ToString()));
+                }      
+            }
+            else if (myJson["type"].ToString().Equals("configure:objects"))
+            {
+                foreach (JObject obj in myJson["message"])
+                {
+                    //engine.AddTextToLog(obj["name"] + " " + obj["width"] + " " + obj["height"]);
+                    string type = obj["type"].ToString();
+                    if (engine.GetObjectManager().ExistsObjectType(type))
+                    {
+                        ObjectType objType = engine.GetObjectManager().GetObjectTypes()[type];
+                        engine.GetObjectManager().AddPossibleObject(new SingleObject(type, obj["name"].ToString(), objType.GetWidth(), objType.GetHeight())); 
+                    }
+                    else
+                    {
+                        // error: nie ma takiego typu
+                    }
+                }
+            }
+
             myJson["type"] = myJson["type"].ToString().Replace("configure:", "reconfigured:");
         }
         else if (myJson["type"].ToString().Equals("calibration:listen_to_start"))
@@ -101,6 +130,20 @@ namespace Server {
 
             send(SpeechRecognizer.Orders.DONE);
             return;*/
+            engine.GetSpeechRecognizer().CreateAndLoadGrammarWithObjectsNames(engine.GetObjectManager().GetPossibleObjectsNames());
+        }
+        else if (myJson["type"].ToString().Equals("work:init"))
+        {
+            send(SpeechRecognizer.Orders.WORK);
+            if (engine.SetAppStateToWorking())
+            {
+                engine.AddTextToLog("Aplikacja w pelni gotowa do dzialania!");
+            }
+            else
+            {
+                engine.AddTextToLog("Wystapil blad przy aktywacji aplikacji! Zresetuj program!");
+            }
+            return;
         }
 
         if (_name.IsEmpty())

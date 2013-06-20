@@ -134,14 +134,6 @@ namespace Server
                 // tu trzeba odpalic webServerSocket
 
                 speechRecognizer.Start();
-                AddTextToLog("MainEngine: SpeechRec started");
-               
-                objectManager.CreateNewPossibleObject("ab", "lion", 10, 10);
-                objectManager.CreateNewPossibleObject("ab", "cat", 10, 10);
-                objectManager.CreateNewPossibleObject("ab", "dog", 10, 10);
-                speechRecognizer.CreateAndLoadGrammarWithObjectsNames(objectManager.GetPossibleObjectsNames());
-
-                AddTextToLog("MainEngine: started"); 
 
                 /* Ogolnie idea jest taka:
                  * 1. WebSocketServer (WSS) sobie dziala i czeka na podlaczenie klienta
@@ -174,12 +166,16 @@ namespace Server
             this.appState = appS;
         }
 
-        public void SetAppStateToWorking()
+        public bool SetAppStateToWorking()
         {
             if (this.appState == ApplicationState.Calibrated)
+            {
                 this.appState = ApplicationState.Working;
+                return true;
+            }
             else
             {
+                return false;
                 // ...
             }
         }

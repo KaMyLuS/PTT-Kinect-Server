@@ -16,7 +16,8 @@ namespace Server
         {
             CALIBRATE,
             MARK,
-            DONE
+            DONE,
+            WORK
         }
 
         private SpeechRecognitionEngine speechEngine;

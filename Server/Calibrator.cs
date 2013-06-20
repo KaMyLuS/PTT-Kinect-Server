@@ -34,7 +34,7 @@ namespace Server
                 calibrationPoints[nextPointIndex] = new Point3D(x, y, z);
                 nextPointIndex++;
 
-                mainEngine.AddTextToLog("Calibration point: " + x.ToString() + " " + y.ToString() + " " + z.ToString());
+                mainEngine.AddTextToLog("Punkt kalibracji: " + x.ToString() + " " + y.ToString() + " " + z.ToString());
             }
             if (nextPointIndex == 6) // tu jeszcze inne pierdoly trzeba sprawdzic (np. sensownosc punktow)
             {
@@ -43,7 +43,7 @@ namespace Server
                 if (mainEngine.GetAppState() == ApplicationState.Calibration)
                 {
                     mainEngine.SetAppState(ApplicationState.Calibrated);
-                    mainEngine.AddTextToLog("Calibration end");
+                    mainEngine.AddTextToLog("Kalibracja zakonczona!");
                 }
                 else
                 {

@@ -18,6 +18,9 @@ namespace Server
         // margines pomiedzy obiektami (wg wsp. ekranowych), potrzebny przy relatywnym pozycjonowaniu
         double screenGutter;
 
+        // dopuszczalne typy obiektow
+        Dictionary<string, ObjectType> objectTypes = new Dictionary<string, ObjectType>();
+
         // margines wg odleglosci Kinecta
         double kinectGutter;
 
@@ -45,6 +48,11 @@ namespace Server
         public void AddPossibleObject(SingleObject obj)
         {
             if (obj != null) possibleObjects.Add(obj.GetObjectName(), obj);
+        }
+
+        public void AddObjectType(string type, int width, int height)
+        {
+            objectTypes.Add(type, new ObjectType(type, width, height));
         }
 
         // dodawanie obiektu 'na plansze' wg wspolrzednych Kinecta
@@ -169,6 +177,17 @@ namespace Server
         {
             if (usedObjects.ContainsKey(name)) return true;
             return false;
+        }
+
+        public bool ExistsObjectType(string name)
+        {
+            if (objectTypes.ContainsKey(name)) return true;
+            return false;
+        }
+
+        public Dictionary<string, ObjectType> GetObjectTypes()
+        {
+            return objectTypes;
         }
     }
 }
