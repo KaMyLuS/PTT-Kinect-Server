@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Drawing;
 using System.Windows.Media.Media3D;
+using Microsoft.Kinect;
 
 namespace Server
 {
@@ -18,11 +19,33 @@ namespace Server
         // czy proces kalibracji sie zakonczyl
         private bool calibrated = false;
 
+        // usrednione max/min wspolrzedne dloni
+        double avMaxX, avMaxY, avMinX, avMinY;
+        double kinectWidth, kinectHeight;
+        double xScale, yScale;
+
+        // wysokosc i szerokosc ekranu
+        int screenHeight = 768, screenWidth = 1366;
+
         private readonly MainEngine mainEngine;
 
         public Calibrator(MainEngine me)
         {
             mainEngine = me;
+        }
+
+        private void computeCalibrationCoeffs()
+        {
+            avMaxX = (calibrationPoints[2].X + calibrationPoints[3].X) / 2;
+            avMinX = (calibrationPoints[0].X + calibrationPoints[5].X) / 2;
+            avMinY = (calibrationPoints[0].Y + calibrationPoints[1].Y + calibrationPoints[2].Y) / 3;
+            avMaxY = (calibrationPoints[3].Y + calibrationPoints[4].Y + calibrationPoints[5].Y) / 3;
+
+            kinectWidth = avMaxX - avMinX;
+            kinectHeight = avMaxY - avMinY;
+
+            xScale = screenWidth / kinectWidth ;
+            yScale = screenHeight / kinectHeight;
         }
 
         // ustawianie nastepnego punktu kalibracji
@@ -36,13 +59,13 @@ namespace Server
 
                 mainEngine.AddTextToLog("Punkt kalibracji: " + x.ToString() + " " + y.ToString() + " " + z.ToString());
             }
-            if (nextPointIndex == 6) // tu jeszcze inne pierdoly trzeba sprawdzic (np. sensownosc punktow)
+            if (nextPointIndex == 6) // tu jeszcze inne rzeczy trzeba sprawdzic (np. sensownosc punktow)
             {
-                calibrated = true;
-
                 if (mainEngine.GetAppState() == ApplicationState.Calibration)
                 {
+                    computeCalibrationCoeffs();
                     mainEngine.SetAppState(ApplicationState.Calibrated);
+                    calibrated = true;
                     mainEngine.AddTextToLog("Kalibracja zakonczona!");
                 }
                 else
@@ -74,8 +97,11 @@ namespace Server
 
         public Point ScaleKinectPositionToScreen(Point3D kinectPos)
         {
-            // TO DO!!
-            Point res = new Point(0, 0);
+            double xLen = kinectPos.X - avMinX;
+            double yLen = kinectPos.Y - avMinY;
+            double xScreenLen = xLen * xScale;
+            double yScreenLen = yLen * yScale;
+            Point res = new Point((int)xScreenLen, (int)yScreenLen);
             return res;
         }
 
