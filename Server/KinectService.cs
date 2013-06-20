@@ -135,6 +135,12 @@ namespace Server {
                     }
                 }
             }
+            else if (myJson["type"].ToString().Equals("configure:sizing"))
+            {
+                int height = int.Parse(myJson["message"]["height"].ToString());
+                int width = int.Parse(myJson["message"]["width"].ToString());
+                int gutter = int.Parse(myJson["message"]["gutter"].ToString());
+            }
 
             myJson["type"] = myJson["type"].ToString().Replace("configure:", "reconfigured:");
         }
