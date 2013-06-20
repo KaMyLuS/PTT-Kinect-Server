@@ -17,7 +17,8 @@ namespace Server
             CALIBRATE,
             MARK,
             DONE,
-            WORK
+            WORK,
+            CREATE
         }
 
         private SpeechRecognitionEngine speechEngine;
@@ -197,6 +198,10 @@ namespace Server
                         {
                             mainEngine.GetObjectManager().AddUsedObject(semVal["OWN_NEW_NAME"].Value.ToString(),
                                 mainEngine.GetSkeletonController().GetRightHandCoord());
+
+                            SingleObject so = mainEngine.GetObjectManager().GetUsedObjectByName(semVal["OWN_NEW_NAME"].Value.ToString());
+                            so.SetScreenPosition(mainEngine.GetCalibrator().ScaleKinectPositionToScreen(so.GetCentroidPosition()));
+                            mainEngine.service.sendCreateObject(so.GetObjectName(), so.GetObjectType(), so.GetScreenCentroidPosition().Y, so.GetScreenCentroidPosition().X);
                             // no i komunikat do klienta...
                         }
                         else

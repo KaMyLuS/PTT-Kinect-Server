@@ -83,6 +83,12 @@ namespace Server {
         }
     }
 
+    public void sendCreateObject(string name, string type, int top, int left)
+    {
+        JObject myJson = JObject.Parse("{ \"type\": \"object:create\", \"message\": { \"name\": \"" + name + "\", \"type\": \"" + type + "\", \"top\": " + top + ", \"left\": " + left + " } }");
+        Broadcast(myJson.ToString());
+    }
+
     protected override void OnMessage(MessageEventArgs e)
     {
         var msg = "";
