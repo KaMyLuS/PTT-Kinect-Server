@@ -33,13 +33,18 @@ namespace Server
                 // tu wypada spr sensownosc punktu
                 calibrationPoints[nextPointIndex] = new Point3D(x, y, z);
                 nextPointIndex++;
+
+                mainEngine.AddTextToLog("Calibration point: " + x.ToString() + " " + y.ToString() + " " + z.ToString());
             }
             if (nextPointIndex == 6) // tu jeszcze inne pierdoly trzeba sprawdzic (np. sensownosc punktow)
             {
                 calibrated = true;
 
                 if (mainEngine.GetAppState() == ApplicationState.Calibration)
+                {
                     mainEngine.SetAppState(ApplicationState.Calibrated);
+                    mainEngine.AddTextToLog("Calibration end");
+                }
                 else
                 {
                     // cos poszlo zle, skoro apka nie byla w stanie kalibracji a kalibracja sie odbywala...

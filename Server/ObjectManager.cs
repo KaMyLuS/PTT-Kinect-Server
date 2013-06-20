@@ -50,11 +50,25 @@ namespace Server
         // dodawanie obiektu 'na plansze' wg wspolrzednych Kinecta
         public void AddUsedObject(string name, double kx, double ky, double kz)
         {
-            SingleObject obj = possibleObjects[name];
-            if (obj != null)
+            if (possibleObjects.ContainsKey(name))
             {
-                obj.KinectMoveTo(kx, ky, kz);
-                usedObjects.Add(name, obj);
+                SingleObject obj = possibleObjects[name];
+                if (!ExistsUsedObject(name))
+                {
+                    obj.KinectMoveTo(kx, ky, kz);
+                    usedObjects.Add(name, obj);
+                    mainEngine.AddTextToLog("ObjectManager: dodano na plansze obiekt o nazwie " + name);
+                }
+                else
+                {
+                    mainEngine.AddTextToLog("ObjectManager: na planszy juz istnieje obiekt o nazwie " + name);
+                }
+            }
+            else
+            {
+                mainEngine.AddTextToLog("ObjectManager: nie obsluguje obiektu o nazwie " + name
+                    + " na pozycje (" + kx
+                    + "," + ky + "," + kz + ")");
             }
         }
 
@@ -66,14 +80,17 @@ namespace Server
         // usuwanie obiektu z planszy
         public void RemoveUsedObject(string name)
         {
-            SingleObject obj = usedObjects[name];
-            if (obj != null)
+            if (ExistsUsedObject(name))
             {
+                SingleObject obj = usedObjects[name];
                 usedObjects.Remove(name);
                 if (selectedObject == obj) selectedObject = null;
+
+                mainEngine.AddTextToLog("ObjectManager: usunieto z planszy obiekt " + name);
             }
             else
             {
+                mainEngine.AddTextToLog("ObjectManager: nie istnieje na planszy obiekt do usuniecia " + name);
                 // ...
             }
         }
@@ -87,16 +104,20 @@ namespace Server
         // przesuwanie danego obiektu wg wspolrzednych Kinecta
         public void MoveTo(string name, double x, double y, double z)
         {
-            SingleObject obj = usedObjects[name];
-            if (obj != null)
+            if (ExistsUsedObject(name))
             {
+                SingleObject obj = usedObjects[name];
                 obj.KinectMoveTo(x, y, z);
                 obj.SetScreenPosition(mainEngine.GetCalibrator().ScaleKinectPositionToScreen(x, y, z));
                 // tu wypada wyslac komunikat do klienta o zmianie polozenia
+
+                mainEngine.AddTextToLog("ObjectManager: przesunieto obiekt " + name + " na pozycje (" + x 
+                    + "," + y + "," + z + ")");
             }
             else
             {
-                // ....
+                mainEngine.AddTextToLog("ObjectManager: nie ma obiektu do przesuniecia o nazwie " + name);
+                // ...
             }
         }
 
@@ -142,6 +163,12 @@ namespace Server
         public SingleObject GetSelectedObject()
         {
             return selectedObject;
+        }
+
+        bool ExistsUsedObject(string name)
+        {
+            if (usedObjects.ContainsKey(name)) return true;
+            return false;
         }
     }
 }

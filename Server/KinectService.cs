@@ -21,8 +21,7 @@ namespace Server {
     public KinectService()
     {
         MainWindow window = MainWindow.instance;
-        engine = new MainEngine(null, window.TBLog);
-        window.mainEngine = engine;
+        engine = window.mainEngine;
         engine.service = this;
     }
 

@@ -12,7 +12,7 @@ namespace Server
         private Skeleton[] skeletons;
 
         private Joint rightHand;
-        private Point3D rightHandCoord;
+        private Point3D rightHandCoord = new Point3D(0, 0, 0);
 
         private readonly MainEngine mainEngine;
 
@@ -40,14 +40,17 @@ namespace Server
                                 return;
 
                             Skeleton firstTrackedSkeleton = skeletons.Where(s => s.TrackingState == SkeletonTrackingState.Tracked).FirstOrDefault();
-                            if (firstTrackedSkeleton.Joints[JointType.HandRight].TrackingState == JointTrackingState.Tracked)
+                            if (firstTrackedSkeleton != null && firstTrackedSkeleton.Joints[JointType.HandRight].TrackingState == JointTrackingState.Tracked)
                             {
                                 rightHand = firstTrackedSkeleton.Joints[JointType.HandRight];
                                 rightHandCoord = new Point3D(rightHand.Position.X, rightHand.Position.Y, rightHand.Position.Z);
 
                                 if (mainEngine.GetAppState() == ApplicationState.Working)
                                     MainEngine.MoveCursorTo(mainEngine.GetCalibrator().ScaleKinectPositionToScreen(
-                                        rightHand.Position.X, rightHand.Position.Y, rightHand.Position.Z));   
+                                        rightHand.Position.X, rightHand.Position.Y, rightHand.Position.Z));
+
+                                //mainEngine.AddTextToLog("SkelControl: hand tracked " + rightHand.Position.X.ToString()
+                                   // + " " + rightHand.Position.Y.ToString() + " " + rightHand.Position.Z.ToString());
                             }
                         }
                     }

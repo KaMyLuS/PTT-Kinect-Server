@@ -37,6 +37,7 @@ namespace Server
         {
             get
             {
+                AddTextToLog("MainEngine: " + this.kinectSensor.Status.ToString());
                 if (this.kinectSensor != null && this.kinectSensor.Status == KinectStatus.Connected)
                     return true;
                 return false;
@@ -120,6 +121,7 @@ namespace Server
 
         public void Start()
         {
+            AddTextToLog("MainEngine: trying to start " + this.IsKinectConnected.ToString()); 
             if (this.IsKinectConnected)
             {
                 // przygotowanie streamingu danych o szkielecie
@@ -132,6 +134,16 @@ namespace Server
                 // tu trzeba odpalic webServerSocket
 
                 speechRecognizer.Start();
+                AddTextToLog("MainEngine: SpeechRec started");
+               
+                objectManager.CreateNewPossibleObject("ab", "lion", 10, 10);
+                objectManager.CreateNewPossibleObject("ab", "cat", 10, 10);
+                objectManager.CreateNewPossibleObject("ab", "dog", 10, 10);
+                speechRecognizer.CreateAndLoadGrammarWithObjectsNames(objectManager.GetPossibleObjectsNames());
+
+                appState = ApplicationState.Working;
+
+                AddTextToLog("MainEngine: started"); 
 
                 /* Ogolnie idea jest taka:
                  * 1. WebSocketServer (WSS) sobie dziala i czeka na podlaczenie klienta

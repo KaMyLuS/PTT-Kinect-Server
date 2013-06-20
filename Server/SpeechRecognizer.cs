@@ -30,27 +30,56 @@ namespace Server
             mainEngine = me;
         }
 
-        public void Start(Grammar g = null)
+        public void Start()
         {
             recognizerInfo = GetKinectRecognizer();
+
+            mainEngine.AddTextToLog("SpeechRec: " + "trying to start");
 
             if (recognizerInfo != null)
             {
                 this.speechEngine = new SpeechRecognitionEngine(recognizerInfo.Id);
 
-                if (g != null) speechEngine.LoadGrammar(g);
+                // komendy do kalibracji
+                Choices calibration = new Choices();
+                calibration.Add(new SemanticResultValue("calibrate", "CALIB_CALIBRATE"));
+                calibration.Add(new SemanticResultValue("mark", "CALIB_MARK"));
+
+                GrammarBuilder gbCalibration = new GrammarBuilder { Culture = recognizerInfo.Culture };
+                gbCalibration.Append(calibration);
+                Grammar gCalibration = new Grammar(gbCalibration);
+
+                // do obslugi bez wykorzystywania nazw obiektow
+                Choices objNoNames = new Choices();
+                objNoNames.Add(new SemanticResultValue("move", "ONN_MOVE"));
+                objNoNames.Add(new SemanticResultValue("there", "ONN_THERE"));
+                objNoNames.Add(new SemanticResultValue("remove", "ONN_REMOVE"));
+
+                GrammarBuilder gbONN = new GrammarBuilder { Culture = recognizerInfo.Culture };
+                gbONN.Append(objNoNames);
+                Grammar gONN = new Grammar(gbONN);
+
+                // ladowanie gramatyk
+                speechEngine.LoadGrammar(gCalibration);
+                speechEngine.LoadGrammar(gONN);
 
                 speechEngine.SpeechRecognized += speechEngine_SpeechRecognized;
                 speechEngine.SpeechRecognitionRejected += speechEngine_SpeechRecognitionRejected;
 
+                mainEngine.AddTextToLog("SpeechRec: " + "2");
+
                 speechEngine.SetInputToAudioStream(
                     mainEngine.GetKinectSensor().AudioSource.Start(), new SpeechAudioFormatInfo(EncodingFormat.Pcm, 16000, 16, 1, 32000, 2, null));
                 speechEngine.RecognizeAsync(RecognizeMode.Multiple);
+
+                mainEngine.AddTextToLog("SpeechRec: " + "3");
             }
             else
             {
                 // cos zle z Kinectem
+                mainEngine.AddTextToLog("SpeechRec: " + "recognizerInfo = null");
             }
+            mainEngine.AddTextToLog("SpeechRec: " + "started");
         }
 
         public void LoadGrammar(Grammar g)
@@ -61,115 +90,129 @@ namespace Server
         void speechEngine_SpeechRecognitionRejected(object sender, SpeechRecognitionRejectedEventArgs e)
         {
             // to do
+            //mainEngine.AddTextToLog("SpeechRec: " + "not recognized");
         }
 
         void speechEngine_SpeechRecognized(object sender, SpeechRecognizedEventArgs e)
         {
             const double ConfidenceThreshold = 0.3;
 
-            if (e.Result.Confidence >= ConfidenceThreshold && e.Result.Semantics.Value != null)
+            if (e.Result.Confidence >= ConfidenceThreshold)
             {
-                string semValue = e.Result.Semantics.Value.ToString();
-
-                switch (semValue)
+                if (e.Result.Semantics.Value != null)
                 {
-                    case  "CALIB_CALIBRATE":
-                        mainEngine.AddTextToLog("SpeechRec: " + semValue);
+                    string semValue = e.Result.Semantics.Value.ToString();
 
-                        if (mainEngine.GetAppState() == ApplicationState.Ready)
-                        {
-                            mainEngine.SetAppState(ApplicationState.Calibration);
-                            mainEngine.service.send(Orders.CALIBRATE);
-                        }
-                        else
-                        {
-                            // jakies inne przypadki? np. ponowna kalibracja czy cos...
-                        }
+                    switch (semValue)
+                    {
+                        case "CALIB_CALIBRATE":
+                            mainEngine.AddTextToLog("SpeechRec: " + semValue);
+                            if (mainEngine.GetAppState() == ApplicationState.Ready)
+                            {
+                                mainEngine.SetAppState(ApplicationState.Calibration);
+                                mainEngine.service.send(Orders.CALIBRATE);
+                                // no i komunikat do klienta...
+                            }
+                            else
+                            {
+                                // jakies inne przypadki? np. ponowna kalibracja czy cos...
+                            }
                         break;
 
-                    case "CALIB_MARK":
-                        mainEngine.AddTextToLog("SpeechRec: " + semValue);
+                        case "CALIB_MARK":
+                            mainEngine.AddTextToLog("SpeechRec: " + semValue);
+                            if (mainEngine.GetAppState() == ApplicationState.Calibration)
+                            {
+                                mainEngine.GetCalibrator().SetNextCalibrationPoint(
+                                    mainEngine.GetSkeletonController().GetRightHandCoord());
+                                mainEngine.service.send(Orders.MARK);
+                            }
+                            else
+                            {
+                                // albo juz po kalibracji albo cos poszlo zle...
+                            }
+                            break;
 
-                        if (mainEngine.GetAppState() == ApplicationState.Calibration)
+                        case "ONN_MOVE":
+                            mainEngine.AddTextToLog("SpeechRec: " + semValue);
+                            break;
+
+                        case "ONN_THERE":
+                            mainEngine.AddTextToLog("SpeechRec: " + semValue);
+                            if (mainEngine.GetAppState() == ApplicationState.Working)
+                            {
+                                mainEngine.GetObjectManager().SelectedMoveTo(mainEngine.GetSkeletonController().GetRightHandCoord());
+                                // no i komunikat do klienta...
+                            }
+                            else
+                            {
+                                // ...
+                            }
+                            break;
+
+                        case "ONN_REMOVE":
+                            mainEngine.AddTextToLog("SpeechRec: " + semValue);
+
+                            if (mainEngine.GetAppState() == ApplicationState.Working)
+                            {
+                                mainEngine.GetObjectManager().RemoveSelectedObject();
+                                // no i komunikat do klienta...
+                            }
+                            else
+                            {
+                                // ...
+                            }
+                            break;
+                    }
+                }
+                else
+                {
+                    var semVal = e.Result.Semantics;
+
+                    if (semVal.ContainsKey("OWN_MOVE_NAME"))
+                    {
+                        mainEngine.AddTextToLog("SpeechRec: move " + semVal["OWN_MOVE_NAME"].Value);
+
+                        if (mainEngine.GetAppState() == ApplicationState.Working)
                         {
-                            mainEngine.GetCalibrator().SetNextCalibrationPoint(
+                            mainEngine.GetObjectManager().MoveTo(semVal["OWN_MOVE_NAME"].Value.ToString(),
                                 mainEngine.GetSkeletonController().GetRightHandCoord());
-                            mainEngine.service.send(Orders.MARK);
-                        }
-                        else
-                        {
-                            // albo juz po kalibracji albo cos poszlo zle...
-                        }
-                        break;
-
-                    case "ONN_MOVE":
-                        mainEngine.AddTextToLog("SpeechRec: " + semValue);
-                        break;
-
-                    case "ONN_THERE":
-                        mainEngine.AddTextToLog("SpeechRec: " + semValue);
-
-                        if (mainEngine.GetAppState() == ApplicationState.Working)
-                        {
-                            mainEngine.GetObjectManager().SelectedMoveTo(mainEngine.GetSkeletonController().GetRightHandCoord());
+                            // no i komunikat do klienta...
                         }
                         else
                         {
                             // ...
                         }
-                        break;
-
-                    case "ONN_REMOVE":
-                        mainEngine.AddTextToLog("SpeechRec: " + semValue);
+                    }
+                    else if (semVal.ContainsKey("OWN_NEW_NAME"))
+                    {
+                        mainEngine.AddTextToLog("SpeechRec: new " + semVal["OWN_NEW_NAME"].Value);
 
                         if (mainEngine.GetAppState() == ApplicationState.Working)
                         {
-                            mainEngine.GetObjectManager().RemoveSelectedObject();
+                            mainEngine.GetObjectManager().AddUsedObject(semVal["OWN_NEW_NAME"].Value.ToString(),
+                                mainEngine.GetSkeletonController().GetRightHandCoord());
+                            // no i komunikat do klienta...
                         }
                         else
                         {
                             // ...
                         }
-                        break;
+                    }
+                    else if (semVal.ContainsKey("OWN_REMOVE_NAME"))
+                    {
+                        mainEngine.AddTextToLog("SpeechRec: remove " + semVal["OWN_REMOVE_NAME"].Value);
 
-                    default:
-                        var semVal = e.Result.Semantics;
-
-                        if (semVal["OWN_MOVE_NAME"] != null)
+                        if (mainEngine.GetAppState() == ApplicationState.Working)
                         {
-                            mainEngine.AddTextToLog("SpeechRec: " + semVal["OWN_MOVE_NAME"]);
-
-                            if (mainEngine.GetAppState() == ApplicationState.Working)
-                            {
-                                mainEngine.GetObjectManager().MoveTo(semVal["OWN_MOVE_NAME"].ToString(),
-                                    mainEngine.GetSkeletonController().GetRightHandCoord());
-                            }
-                            else
-                            {
-                                // ...
-                            }
+                            mainEngine.GetObjectManager().RemoveUsedObject(semVal["OWN_REMOVE_NAME"].Value.ToString());
+                            // no i komunikat do klienta...
                         }
-                        else if (semVal["OWN_NEW_NAME"] != null)
+                        else
                         {
-                            mainEngine.AddTextToLog("SpeechRec: " + semVal["OWN_NEW_NAME"]);
 
-                            if (mainEngine.GetAppState() == ApplicationState.Working)
-                            {
-                                mainEngine.GetObjectManager().AddUsedObject(semVal["OWN_NEW_NAME"].ToString(),
-                                    mainEngine.GetSkeletonController().GetRightHandCoord());
-                            }
-                            else
-                            {
-                                // ...
-                            }
                         }
-                        else if (semVal["OWN_REMOVE_NAME"] != null)
-                        {
-                            mainEngine.AddTextToLog("SpeechRec: " + semVal["OWN_NEW_NAME"]);
-
-                            mainEngine.GetObjectManager().RemoveUsedObject(semVal["OWN_NEW_NAME"].ToString());
-                        }
-                        break;
+                    }   
                 }
             }
         }
@@ -205,25 +248,6 @@ namespace Server
 
         public void CreateAndLoadGrammarWithObjectsNames(string[] objNames)
         {
-            // komendy do kalibracji
-            Choices calibration = new Choices();
-            calibration.Add(new SemanticResultValue("calibrate", "CALIB_CALIBRATE"));
-            calibration.Add(new SemanticResultValue("mark", "CALIB_MARK"));
-              
-            GrammarBuilder gbCalibration = new GrammarBuilder { Culture = recognizerInfo.Culture };
-            gbCalibration.Append(calibration); 
-            Grammar gCalibration = new Grammar(gbCalibration);
-
-            // do obslugi bez wykorzystywania nazw obiektow
-            Choices objNoNames = new Choices();
-            objNoNames.Add(new SemanticResultValue("move", "ONN_MOVE"));
-            objNoNames.Add(new SemanticResultValue("there", "ONN_THERE"));
-            objNoNames.Add(new SemanticResultValue("remove", "ONN_REMOVE"));
-
-            GrammarBuilder gbONN = new GrammarBuilder { Culture = recognizerInfo.Culture };
-            gbONN.Append(objNoNames);
-            Grammar gONN = new Grammar(gbONN);
-
             // przesuwanie obiektow z wykorzystaniem nazw
             Choices objWithNames = new Choices(objNames);
             GrammarBuilder gbMOWN = new GrammarBuilder { Culture = recognizerInfo.Culture };
@@ -239,16 +263,16 @@ namespace Server
 
             // usuwanie obiektow z wykorzystaniem nazw
             GrammarBuilder gbROWN = new GrammarBuilder { Culture = recognizerInfo.Culture };
-            gbROWN.Append("new");
+            gbROWN.Append("remove");
             gbROWN.Append(new SemanticResultKey("OWN_REMOVE_NAME", objWithNames));
             Grammar gROWN = new Grammar(gbROWN);
 
             // ladujemy wszystkie gramatyki
-            speechEngine.LoadGrammar(gCalibration);
-            speechEngine.LoadGrammar(gONN);
             speechEngine.LoadGrammar(gMOWN);
             speechEngine.LoadGrammar(gCOWN);
             speechEngine.LoadGrammar(gROWN);
+
+            mainEngine.AddTextToLog("SpeechRec: " + "grammars loaded");
         }
     }
 }
