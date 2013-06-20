@@ -79,7 +79,7 @@ namespace Server
                         if (mainEngine.GetAppState() == ApplicationState.Ready)
                         {
                             mainEngine.SetAppState(ApplicationState.Calibration);
-                            mainEngine.service.send(SpeechRecognizer.Orders.CALIBRATE);
+                            mainEngine.service.send(Orders.CALIBRATE);
                         }
                         else
                         {
@@ -94,6 +94,7 @@ namespace Server
                         {
                             mainEngine.GetCalibrator().SetNextCalibrationPoint(
                                 mainEngine.GetSkeletonController().GetRightHandCoord());
+                            mainEngine.service.send(Orders.MARK);
                         }
                         else
                         {

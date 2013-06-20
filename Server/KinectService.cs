@@ -92,14 +92,13 @@ namespace Server {
         }
         else if (myJson["type"].ToString().Equals("calibration:listen_to_start"))
         {
-            send(SpeechRecognizer.Orders.CALIBRATE);
+            send(SpeechRecognizer.Orders.CALIBRATE); //tylko dla mockowania, do usuniecia jak bedzie kinect, on wysle sygnal po rozpoznaniu slowa
             while (count < markers.Length)
             {
-                send(SpeechRecognizer.Orders.MARK);
+                send(SpeechRecognizer.Orders.MARK);  //tylko dla mockowania, do usuniecia jak bedzie kinect, on wysle sygnal po rozpoznaniu slowa
             }
 
             send(SpeechRecognizer.Orders.DONE);
-
             return;
         }
 
