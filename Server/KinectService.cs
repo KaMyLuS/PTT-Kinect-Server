@@ -89,7 +89,7 @@ namespace Server {
         Broadcast(myJson.ToString());
     }
 
-    public void sendMoveObject(string name, string top, string left)
+    public void sendMoveObject(string name, int top, int left)
     {
         JObject myJson = JObject.Parse("{ \"type\": \"object:set_active\", \"message\": { \"name\": \"" + name + "\", \"top\": " + top + ", \"left\": " + left + " } }");
         Broadcast(myJson.ToString());
