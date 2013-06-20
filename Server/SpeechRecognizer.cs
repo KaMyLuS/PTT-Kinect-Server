@@ -36,8 +36,6 @@ namespace Server
         {
             recognizerInfo = GetKinectRecognizer();
 
-            mainEngine.AddTextToLog("SpeechRec: " + "trying to start");
-
             if (recognizerInfo != null)
             {
                 this.speechEngine = new SpeechRecognitionEngine(recognizerInfo.Id);
@@ -75,7 +73,7 @@ namespace Server
             else
             {
                 // cos zle z Kinectem
-                mainEngine.AddTextToLog("SpeechRec: " + "recognizerInfo = null");
+                mainEngine.AddTextToLog("SpeechRecognizer: " + "recognizerInfo = null");
             }
             mainEngine.AddTextToLog("SpeechRec: " + "started");
         }
@@ -161,7 +159,11 @@ namespace Server
 
                             if (mainEngine.GetAppState() == ApplicationState.Working)
                             {
-                                mainEngine.GetObjectManager().RemoveSelectedObject();
+                                if (mainEngine.GetObjectManager().GetSelectedObject() != null)
+                                {
+                                    mainEngine.service.sendRemoveObject(mainEngine.GetObjectManager().GetSelectedObject().GetObjectName());
+                                    mainEngine.GetObjectManager().RemoveSelectedObject();
+                                }
                                 // no i komunikat do klienta...
                             }
                             else
@@ -181,9 +183,15 @@ namespace Server
 
                         if (mainEngine.GetAppState() == ApplicationState.Working)
                         {
-                            mainEngine.GetObjectManager().MoveTo(semVal["OWN_MOVE_NAME"].Value.ToString(),
+                            string name = semVal["OWN_MOVE_NAME"].Value.ToString();
+                            mainEngine.GetObjectManager().MoveTo(name,
                                 mainEngine.GetSkeletonController().GetRightHandCoord());
-                            // no i komunikat do klienta...
+                            SingleObject so = mainEngine.GetObjectManager().GetUsedObjectByName(name);
+                            if (so != null)
+                            {
+                                mainEngine.service.sendMoveObject(so.GetObjectName(), so.GetScreenCentroidPosition().Y,
+                                    so.GetScreenCentroidPosition().X);
+                            }
                         }
                         else
                         {
@@ -202,7 +210,6 @@ namespace Server
                             SingleObject so = mainEngine.GetObjectManager().GetUsedObjectByName(semVal["OWN_NEW_NAME"].Value.ToString());
                             so.SetScreenPosition(mainEngine.GetCalibrator().ScaleKinectPositionToScreen(so.GetCentroidPosition()));
                             mainEngine.service.sendCreateObject(so.GetObjectName(), so.GetObjectType(), so.GetScreenCentroidPosition().Y, so.GetScreenCentroidPosition().X);
-                            // no i komunikat do klienta...
                         }
                         else
                         {
@@ -216,7 +223,7 @@ namespace Server
                         if (mainEngine.GetAppState() == ApplicationState.Working)
                         {
                             mainEngine.GetObjectManager().RemoveUsedObject(semVal["OWN_REMOVE_NAME"].Value.ToString());
-                            // no i komunikat do klienta...
+                            mainEngine.service.sendRemoveObject(semVal["OWN_REMOVE_NAME"].Value.ToString());
                         }
                         else
                         {

@@ -52,6 +52,7 @@ namespace Server
 
         public void AddObjectType(string type, int width, int height)
         {
+            // trzeba spr czy obiekt juz istnieje
             objectTypes.Add(type, new ObjectType(type, width, height));
         }
 
@@ -117,7 +118,6 @@ namespace Server
                 SingleObject obj = usedObjects[name];
                 obj.KinectMoveTo(x, y, z);
                 obj.SetScreenPosition(mainEngine.GetCalibrator().ScaleKinectPositionToScreen(x, y, z));
-                // tu wypada wyslac komunikat do klienta o zmianie polozenia
 
                 mainEngine.AddTextToLog("ObjectManager: przesunieto obiekt " + name + " na pozycje (" + x 
                     + "," + y + "," + z + ")");
@@ -150,7 +150,8 @@ namespace Server
 
         public SingleObject GetUsedObjectByName(string name)
         {
-            return usedObjects[name];
+            if(usedObjects.ContainsKey(name)) return usedObjects[name];
+            return null;
         }
 
         public string[] GetPossibleObjectsNames()
@@ -160,7 +161,8 @@ namespace Server
 
         public void SelectObject(string name)
         {
-            selectedObject = usedObjects[name];
+            if (name != null && usedObjects.ContainsKey(name)) selectedObject = usedObjects[name];
+            else selectedObject = null;
         }
 
         public void DeselectObject()

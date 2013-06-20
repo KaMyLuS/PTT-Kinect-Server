@@ -121,7 +121,6 @@ namespace Server
 
         public void Start()
         {
-            AddTextToLog("MainEngine: trying to start " + this.IsKinectConnected.ToString()); 
             if (this.IsKinectConnected)
             {
                 // przygotowanie streamingu danych o szkielecie

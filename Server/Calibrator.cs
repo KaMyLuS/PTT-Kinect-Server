@@ -25,7 +25,7 @@ namespace Server
         double xScale, yScale;
 
         // wysokosc i szerokosc ekranu
-        int screenHeight = 768, screenWidth = 1366;
+        int screenHeight = 600, screenWidth = 800;
 
         private readonly MainEngine mainEngine;
 
@@ -132,6 +132,16 @@ namespace Server
         {
             // TO DO!
             return d;
+        }
+
+        public void SetScreenWidth(int width)
+        {
+            screenWidth = width;
+        }
+
+        public void SetScreenHeight(int height)
+        {
+            screenHeight = height;
         }
     }
 }

@@ -91,7 +91,7 @@ namespace Server {
 
     public void sendMoveObject(string name, int top, int left)
     {
-        JObject myJson = JObject.Parse("{ \"type\": \"object:set_active\", \"message\": { \"name\": \"" + name + "\", \"top\": " + top + ", \"left\": " + left + " } }");
+        JObject myJson = JObject.Parse("{ \"type\": \"object:move\", \"message\": { \"name\": \"" + name + "\", \"top\": " + top + ", \"left\": " + left + " } }");
         Broadcast(myJson.ToString());
     }
 
@@ -140,6 +140,9 @@ namespace Server {
                 int height = int.Parse(myJson["message"]["height"].ToString());
                 int width = int.Parse(myJson["message"]["width"].ToString());
                 int gutter = int.Parse(myJson["message"]["gutter"].ToString());
+
+                engine.GetCalibrator().SetScreenHeight(height);
+                engine.GetCalibrator().SetScreenWidth(width);
             }
 
             myJson["type"] = myJson["type"].ToString().Replace("configure:", "reconfigured:");
@@ -171,11 +174,9 @@ namespace Server {
         }
         else if (myJson["type"].ToString().Equals("object:set_active"))
         {
-            engine.GetObjectManager().SelectObject(myJson["name"].ToString());
+            engine.GetObjectManager().SelectObject(myJson["message"]["name"].ToString());
             return;
         }
-
-
         if (_name.IsEmpty())
         {
             msg = myJson.ToString();
@@ -187,7 +188,7 @@ namespace Server {
 
         if (engine != null)
         {
-            engine.AddTextToLog(msg);
+            //engine.AddTextToLog(msg);
         }
 
         Broadcast(msg);
