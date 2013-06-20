@@ -89,6 +89,18 @@ namespace Server {
         Broadcast(myJson.ToString());
     }
 
+    public void sendMoveObject(string name, string top, string left)
+    {
+        JObject myJson = JObject.Parse("{ \"type\": \"object:set_active\", \"message\": { \"name\": \"" + name + "\", \"top\": " + top + ", \"left\": " + left + " } }");
+        Broadcast(myJson.ToString());
+    }
+
+    public void sendRemoveObject(string name)
+    {
+        JObject myJson = JObject.Parse("{ \"type\": \"object:remove\", \"message\": { \"name\": \"" + name + "\" } }");
+        Broadcast(myJson.ToString());
+    }
+
     protected override void OnMessage(MessageEventArgs e)
     {
         var msg = "";
@@ -151,6 +163,12 @@ namespace Server {
             }
             return;
         }
+        else if (myJson["type"].ToString().Equals("object:set_active"))
+        {
+            engine.GetObjectManager().SelectObject(myJson["name"].ToString());
+            return;
+        }
+
 
         if (_name.IsEmpty())
         {
